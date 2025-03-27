@@ -1,8 +1,8 @@
-﻿using MySql.Data.MySqlClient;
+using MySql.Data.MySqlClient;
 
 class PersonnelAssignmentManager
 {
-    private static string connectionString = "your_connection_string_here";
+    private static string connectionString = "server=localhost;user id=root;password=;database=courier_db";
 
     public static void PersonnelAssignment()
     {
@@ -13,7 +13,8 @@ class PersonnelAssignmentManager
             Console.WriteLine("1. View Packages Awaiting Assignment");
             Console.WriteLine("2. Assign Personnel to Package");
             Console.WriteLine("3. View Assigned Personnel for a Package");
-            Console.WriteLine("4. Back to Main Menu");
+            Console.WriteLine("4. Add Personnel");
+            Console.WriteLine("5. Back to Main Menu");
             Console.Write("Enter your choice: ");
             string choice = Console.ReadLine();
 
@@ -29,6 +30,9 @@ class PersonnelAssignmentManager
                     ViewAssignedPersonnelForPackage();
                     break;
                 case "4":
+                    AddPersonnel();
+                    break;
+                case "5":
                     return;
                 default:
                     Console.WriteLine("Invalid choice. Please try again.");
@@ -214,4 +218,47 @@ class PersonnelAssignmentManager
             Console.WriteLine($"Error viewing assigned personnel for package: {ex.Message}");
         }
     }
+
+    private static void AddPersonnel()
+    {
+        Console.Clear();
+        Console.WriteLine("--- Add Personnel ---");
+        Console.Write("Enter Personnel ID: ");
+        if (!int.TryParse(Console.ReadLine(), out int personnelId))
+        {
+            Console.WriteLine("Invalid personnel ID format.");
+            return;
+        }
+        Console.Write("Enter Personnel Name: ");
+        string name = Console.ReadLine();
+
+        try
+        {
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                connection.Open();
+                string query = "INSERT INTO personnel (id, name) VALUES (@id, @name)";
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@id", personnelId);
+                    command.Parameters.AddWithValue("@name", name);
+                    int rowsAffected = command.ExecuteNonQuery();
+                    if (rowsAffected > 0)
+                    {
+                        Console.WriteLine("Personnel added successfully!");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Failed to add personnel.");
+                    }
+                }
+            }
+        }
+        catch (MySqlException ex)
+        {
+            Console.WriteLine($"Error adding personnel: {ex.Message}");
+        }
+    }
 }
+
+
