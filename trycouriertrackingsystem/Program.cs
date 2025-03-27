@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using MySql.Data.MySqlClient;
 
 namespace CourierTrackingSystem
 {
     class Program
     {
-        private static string connectionString = "server=localhost;user id=root;password=your_password;database=courier_db";
+        private static string connectionString = "server=localhost;user id=root;password=;database=courier_db";
         private static string loggedInUsername = null;
 
         static void Main(string[] args)
@@ -139,7 +139,7 @@ namespace CourierTrackingSystem
             Environment.Exit(0);
         }
 
-        private static void PackageDispatch()
+        public static void PackageDispatch()
         {
             Console.Clear();
             Console.WriteLine("--- Package Dispatch ---");
@@ -147,6 +147,8 @@ namespace CourierTrackingSystem
             string trackingNumber = Console.ReadLine();
             Console.Write("Enter Sender: ");
             string sender = Console.ReadLine();
+            Console.Write("Enter Receiver Email: ");
+            string recipientEmail = Console.ReadLine();
             Console.Write("Enter Receiver: ");
             string recipient = Console.ReadLine();
             Console.Write("Enter Destination: ");
@@ -157,12 +159,13 @@ namespace CourierTrackingSystem
                 using (MySqlConnection connection = new MySqlConnection(connectionString))
                 {
                     connection.Open();
-                    string query = "INSERT INTO packages (tracking_number, sender, recipient, destination, status, dispatch_date) VALUES (@trackingNumber, @sender, @recipient, @destination, 'Dispatched', NOW())";
+                    string query = "INSERT INTO packages (tracking_number, sender, recipient, recipient_email, destination, status, dispatch_date) VALUES (@trackingNumber, @sender, @recipient, @recipientEmail, @destination, 'Dispatched', NOW())";
                     using (MySqlCommand command = new MySqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@trackingNumber", trackingNumber);
                         command.Parameters.AddWithValue("@sender", sender);
                         command.Parameters.AddWithValue("@recipient", recipient);
+                        command.Parameters.AddWithValue("@recipientEmail", recipientEmail);
                         command.Parameters.AddWithValue("@destination", destination);
                         command.ExecuteNonQuery();
                         Console.WriteLine("Package dispatched successfully.");
